@@ -6,18 +6,24 @@ This is a work in progress collection for Rack version 1.
 
 ![modules screenshot](./images/watches_patch.png)
 
-Watches has independent top and bottom sections, each is a switched
-multiple with three inputs and two outputs.
+Watches is a passive multi-connector similar to a classic multiple.
+What's different is that each socket has a 3-position switch to
+connect the jack to one of three internal buses.
 
-Each input or output jack can be connected to the **left or right
-bus** using the switches. All **inputs on a bus are added together and
-sent to the output jacks** connected to that bus. Switches in the
-neutral position mute their channels or connect them to a third bus if
-the `2:3` switch is set to `3`.
+All **inputs on a bus are added together and sent to the output
+jacks** connected to that bus.
 
-`2:3` switches between **two** buses (left and right) and a mute
-(middle) or **three** buses (left, right and middle).
+The top section has three inputs and two outputs, the bottom section
+is the opposite and has two inputs and three outputs.
 
-`+` connects the buses of the upper and lower section together when
-the light is lit. Watches then act as one 6>4 switched multiple
-instead of two independent 3>2s.
+Normally Watches is separated in a top and bottom section that act
+independently. When the `+` button is red the top three buses are
+connected to their bottom counterparts and the module act as one.
+
+The **neutral switch position** connect jacks to the middle bus.
+The middle bus is special and acts differently according to the `2:3`
+switch:
+  - On `2` only two buses are active, the middle bus mutes.
+  - On `3` the middle bus is independent in each section.
+  - In between the middle bus is shared between the two sections even
+    when `+` is not active and they otherwise act independently.

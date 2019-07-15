@@ -20,7 +20,7 @@ struct Watches : Module {
         W23_PARAM,
         W24_PARAM,
         W25_PARAM,
-        MUTES_PARAM,
+        BUSCNT_PARAM,
         JOIN_PARAM,
         NUM_PARAMS
     };
@@ -30,12 +30,12 @@ struct Watches : Module {
         W13_INPUT,
         W21_INPUT,
         W22_INPUT,
-        W23_INPUT,
         NUM_INPUTS
     };
     enum OutputIds {
         W14_OUTPUT,
         W15_OUTPUT,
+        W23_OUTPUT,
         W24_OUTPUT,
         W25_OUTPUT,
         NUM_OUTPUTS
@@ -50,25 +50,25 @@ struct Watches : Module {
 
     Watches() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
-        configParam(W11_PARAM, 0.f, 2.f, 0.f, "Input 1 Bus");
-        configParam(W12_PARAM, 0.f, 2.f, 0.f, "Input 2 Bus");
-        configParam(W13_PARAM, 0.f, 2.f, 0.f, "Input 3 Bus");
-        configParam(W14_PARAM, 0.f, 2.f, 0.f, "Input 4 Bus");
-        configParam(W15_PARAM, 0.f, 2.f, 0.f, "Input 5 Bus");
-        configParam(W21_PARAM, 0.f, 2.f, 0.f, "Input 6 Bus");
-        configParam(W22_PARAM, 0.f, 2.f, 0.f, "Input 7 Bus");
-        configParam(W23_PARAM, 0.f, 2.f, 0.f, "Input 8 Bus");
-        configParam(W24_PARAM, 0.f, 2.f, 0.f, "Input 9 Bus");
-        configParam(W25_PARAM, 0.f, 2.f, 0.f, "Input 10 Bus");
+        configParam(W11_PARAM, 0.f, 2.f, 1.f, "Jack 1 Bus");
+        configParam(W12_PARAM, 0.f, 2.f, 1.f, "Jack 2 Bus");
+        configParam(W13_PARAM, 0.f, 2.f, 1.f, "Jack 3 Bus");
+        configParam(W14_PARAM, 0.f, 2.f, 1.f, "Jack 4 Bus");
+        configParam(W15_PARAM, 0.f, 2.f, 1.f, "Jack 5 Bus");
+        configParam(W21_PARAM, 0.f, 2.f, 1.f, "Jack 6 Bus");
+        configParam(W22_PARAM, 0.f, 2.f, 1.f, "Jack 7 Bus");
+        configParam(W23_PARAM, 0.f, 2.f, 1.f, "Jack 8 Bus");
+        configParam(W24_PARAM, 0.f, 2.f, 1.f, "Jack 9 Bus");
+        configParam(W25_PARAM, 0.f, 2.f, 1.f, "Jack 10 Bus");
 
-        configParam(MUTES_PARAM, 0.f, 1.f, 0.f, "Join");
-        configParam(JOIN_PARAM, 0.f, 1.f, 1.f, "Mutes");
+        configParam(BUSCNT_PARAM, 0.f, 2.f, 2.f, "Bus count");
+        configParam(JOIN_PARAM, 0.f, 1.f, 1.f, "Join");
 
     }
 
     void process(const ProcessArgs &args) override {
 
-        bool mute = params[MUTES_PARAM].getValue();
+        float buscnt = params[BUSCNT_PARAM].getValue();
 
         for (int bus = 0; bus < 3; ++bus) {
             float voltage = float(bus);
@@ -87,14 +87,14 @@ struct Watches : Module {
                 w2 += inputs[W21_INPUT].getVoltage();
             if (params[W22_PARAM].getValue() == voltage)
                 w2 += inputs[W22_INPUT].getVoltage();
-            if (params[W23_PARAM].getValue() == voltage)
-                w2 += inputs[W23_INPUT].getVoltage();
 
-            if (bus == 1 && mute) {
+            if (bus == 1 && buscnt == 2.0) {
+                // Middle bus needs to mute.
                 w1 = w2 = 0.0;
             }
 
-            if (join) {
+            if (join || (bus == 1 && buscnt == 1.0)) {
+                // We are joining, or middle bus is crossing sections.
                 w1 = w2 = w1 + w2;
             }
 
@@ -103,6 +103,8 @@ struct Watches : Module {
             if (params[W15_PARAM].getValue() == voltage)
                 outputs[W15_OUTPUT].setVoltage(w1);
 
+            if (params[W23_PARAM].getValue() == voltage)
+                outputs[W23_OUTPUT].setVoltage(w2);
             if (params[W24_PARAM].getValue() == voltage)
                 outputs[W24_OUTPUT].setVoltage(w2);
             if (params[W25_PARAM].getValue() == voltage)
@@ -115,7 +117,8 @@ struct Watches : Module {
             join ^= true;
         }
 
-        lights[JOIN_LIGHT].setBrightness(join ? 0.9f : 0.f);
+        lights[JOIN_LIGHT].setBrightness(join ? 0.9f : buscnt == 1.0 ? 0.01f : 0.f);
+
     }
 
     json_t *dataToJson() override {
@@ -147,11 +150,11 @@ struct WatchesWidget : ModuleWidget {
         addOutput(createOutputCentered<PJ301MPort>(Vec(19, 122), module, Watches::W14_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(Vec(19, 152), module, Watches::W15_OUTPUT));
 
-        addParam(createParamCentered<CKSS>(Vec(19, 182), module, Watches::MUTES_PARAM));
+        addParam(createParamCentered<CKSSThree>(Vec(19, 182), module, Watches::BUSCNT_PARAM));
 
         addInput(createInputCentered<PJ301MPort>(Vec(19, 212), module, Watches::W21_INPUT));
         addInput(createInputCentered<PJ301MPort>(Vec(19, 242), module, Watches::W22_INPUT));
-        addInput(createInputCentered<PJ301MPort>(Vec(19, 272), module, Watches::W23_INPUT));
+        addOutput(createOutputCentered<PJ301MPort>(Vec(19, 272), module, Watches::W23_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(Vec(19, 302), module, Watches::W24_OUTPUT));
         addOutput(createOutputCentered<PJ301MPort>(Vec(19, 332), module, Watches::W25_OUTPUT));
 
