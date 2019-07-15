@@ -4,7 +4,7 @@ This is a work in progress collection for Rack version 1.
 
 ## Watches - Switched Multiples
 
-![modules screenshot](./images/watches_patch.png)
+![modules screenshot](./images/watches.png)
 
 Watches is a passive multi-connector similar to a classic multiple.
 What's different is that each socket has a 3-position switch to
