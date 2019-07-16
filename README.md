@@ -35,7 +35,7 @@ switch:
 
 Shifts is a hybrid mixer and Bernoulli gate. Each knob mixes linearly
 between two things as long as the knob is in the top part. When going
-beyond the gray markers and pointing the know down it starts acting as
+beyond the gray markers and pointing the knob down it starts acting as
 a Bernoulli gate letting the other side take over more and more.
 
 When a knob is in the Bernoulli zone it will always fully choose one
