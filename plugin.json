@@ -17,9 +17,20 @@
       "name": "Watches",
       "description": "Dual switched multiples.",
       "tags": [
+        "Dual",
         "Multiple",
         "Switch",
         "Utility"
+      ]
+    },
+    {
+      "slug": "Shifts",
+      "name": "Shifts",
+      "description": "Two stage Bernoulli mixer.",
+      "tags": [
+        "Mixer",
+        "Panning",
+        "Random"
       ]
     }
   ]

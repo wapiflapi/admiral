@@ -8,6 +8,15 @@ extern Plugin *pluginInstance;
 
 // Declare each Model, defined in each module source file
 extern Model *modelWatches;
+extern Model *modelShifts;
+
+
+template <typename BASE>
+struct MuteLight : BASE {
+    MuteLight() {
+        this->box.size = mm2px(Vec(6.f, 6.f));
+    }
+};
 
 struct HorizontalBefacoSwitch : app::SvgSwitch {
     HorizontalBefacoSwitch() {

@@ -1,12 +1,5 @@
 #include "plugin.hpp"
 
-template <typename BASE>
-struct MuteLight : BASE {
-    MuteLight() {
-        this->box.size = mm2px(Vec(6.f, 6.f));
-    }
-};
-
 
 struct Watches : Module {
     enum ParamIds {
