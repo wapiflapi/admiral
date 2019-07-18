@@ -72,7 +72,11 @@ struct Shifts : Module {
         float Xx[2];
         float ab = inputs[AB_INPUT].getVoltage();
 
+        // Since we're splitting up something into two paths we want
+        // to amplify both of them proportionally, clamping at 100%.
         shiftbalance(stage1levels, trig, P1_PARAM, P1_INPUT);
+        stage1levels[0] = clamp(stage1levels[0] * 2.0f, 0.0f, 1.0f);
+        stage1levels[1] = clamp(stage1levels[1] * 2.0f, 0.0f, 1.0f);
 
         // Processing A-a and B-b separately during stage 2.
         for (int i = 0; i < 2; ++i) {
