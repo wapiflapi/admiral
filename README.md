@@ -2,6 +2,8 @@
 
 This is a work in progress collection for Rack version 1.
 
+![modules screenshot](./images/admiral.png)
+
 ## Watches - Switched Multiples
 
 ![modules screenshot](./images/watches.png)
