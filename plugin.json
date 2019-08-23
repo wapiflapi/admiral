@@ -32,6 +32,16 @@
         "Panning",
         "Random"
       ]
+    },
+    {
+      "slug": "Tables",
+      "name": "Tables",
+      "description": "Quad sequencer.",
+      "tags": [
+        "Clock modulator",
+        "Quad",
+        "Sequencer"
+      ]
     }
   ]
 }

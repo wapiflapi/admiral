@@ -9,6 +9,7 @@ extern Plugin *pluginInstance;
 // Declare each Model, defined in each module source file
 extern Model *modelWatches;
 extern Model *modelShifts;
+extern Model *modelTables;
 
 
 template <typename BASE>
