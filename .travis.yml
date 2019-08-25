@@ -37,7 +37,6 @@ addons:
     - libtool
     - jq
     - python
-
 git:
   submodules: true
 env:
@@ -53,14 +52,13 @@ script:
 - export RACK_DIR="${HOME}"/Rack/Rack-SDK
 - make dep
 - make dist
-
 deploy:
   provider: releases
   api_key:
-    secure: TODOFIXMEWAPI
+    secure: 3PlkChRcO1x/28hT4Zlfn9SZ/4qJjYKZw4n7F8eIsWiRaFw97w4Jt9SyPk42sq4tGusVqXxZPjW0n7CRVVyKSusktaRyuY4GG3el+dxhQLF7shFrLWN6IVlgyv/C0G/egFmMVQlDa/SYmAtzTu8v9+VJjts6n8sfnjgTykKupyhl7gb0gHkvNLLSGvI8C0GIFC+F3YLkPllVCMF8K9lEqemqNKmzZ9F5tBRJj3zYO5wjSvo+eF+2GuNnaxoopNfHPaamzKgOFgc1737o84NTehi0rWi62/3/t5Cp6xk9Mqiwo30paoQ5zq0jRxN0yjLD0Hx/jGDsVaBT934vlbZ/zUtcjTS0ND4uc9TV7T9csuf6M8cC9lRujjcsna+E5fsOJTN5kgp2R2ElLFQKOWdm90qyndidZVfuV8NfJ6ZQX5JGG0TvMlo6gO3Rh86ZqDpSTT52SI1KEn91hCCke/Uj+p6GaSfxczYm+zUcAZ5GY8BoIi+xlgwRrF2XK8TvXtPy0hq1BQ1hqhZhGJQEwBaKsqeFazInftRzDiGLquq/lDW/amP0CRWzKjmdqLgJrsZ99kBqJNGQnVCU1YqyeUZXfdg+U7WcIC7cOVihgVjFCP9WPVYT8Eb95Oo7oljuCaUdV0HkFD6Ny8FU1lBHv/MN32c5QD1WAAwBCCNsr+MWlsg=
   file_glob: true
   file: dist/Admiral-*-*.zip
-  skip_cleanup: true  # Don't remove dist/ before uploading files
+  skip_cleanup: true
   on:
     repo: wapiflapi/admiral
     tags: true
