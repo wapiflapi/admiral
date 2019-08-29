@@ -92,6 +92,25 @@ struct Tables : Module {
         configParam(SELECT_PARAM, 0.f, 1.f, 1.f, "Select");
         configParam(SELECT_PARAM, 0.f, 1.f, 1.f, "Sequence Mode");
 
+        onReset();
+    }
+
+    void onReset() override {
+        memset(&conf, 0, sizeof conf);
+        for (int c = 0; c < 4; c++) {
+            conf.channels[c].reset = true;
+        }
+    }
+
+    void onRandomize() override {
+        onReset();
+        for (int c = 0; c < 4; c++) {
+            conf.channels[c].order = (int) (4.f * random::uniform());
+            for (int i = 0; i < 8; i++) {
+                conf.channels[c].steps[i].mode = (int) (4.f * random::uniform());
+                conf.channels[c].steps[i].pattern = (((int) (16.f * std::pow(random::uniform(), 3))) + 1) % 16;
+            }
+        }
     }
 
     json_t *dataToJson() override {
