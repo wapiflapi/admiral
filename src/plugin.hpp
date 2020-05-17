@@ -10,6 +10,7 @@ extern Plugin *pluginInstance;
 extern Model *modelWatches;
 extern Model *modelShifts;
 extern Model *modelTables;
+extern Model *modelDivisions;
 
 
 template <typename BASE>

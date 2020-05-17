@@ -43,6 +43,16 @@
         "Quad",
         "Sequencer"
       ]
+    },
+    {
+      "slug": "Divisions",
+      "name": "Divisions",
+      "description": "Clock dividier and polyrhythm generator.",
+      "tags": [
+        "Switch",
+        "Clock modulator",
+        "Sequencer"
+     ]
     }
   ]
 }
