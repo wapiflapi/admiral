@@ -27,7 +27,7 @@ struct Divisions : Module {
         NUM_LIGHTS
     };
 
-    dsp::SchmittTrigger rst_trigger;  // TODO.
+    dsp::SchmittTrigger rst_trigger;
     dsp::SchmittTrigger clk_trigger;
     dsp::SchmittTrigger aux_trigger[2];
     dsp::BooleanTrigger bus_triggers[18];
@@ -45,12 +45,34 @@ struct Divisions : Module {
     Divisions() {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
-        for (int i = 0; i < 9; ++i) {
+        for (int i = 0; i < 2; ++i) {
             configParam(BUS_PARAM + 2 * i, 0.f, 1.f, 0.f,
-                        string::f("Bus A - Tap %d", i + 1));
+                        string::f("AUX %d to LEFT bus", i + 1));
             configParam(BUS_PARAM + 2 * i + 1, 0.f, 1.f, 0.f,
-                        string::f("Bus B - Tap %d", i + 1));
+                        string::f("AUX %d to RIGHT bus", i + 1));
         }
+
+        for (int i = 2; i < 6; ++i) {
+            configParam(BUS_PARAM + 2 * i, 0.f, 1.f, 0.f,
+                        string::f("CLK DIV %d to LEFT bus", i - 2 + 1));
+            configParam(BUS_PARAM + 2 * i + 1, 0.f, 1.f, 0.f,
+                        string::f("CLK DIV %d to RIGHT bus", i - 2 + 1));
+        }
+
+        for (int i = 6; i < 9; ++i) {
+            configParam(BUS_PARAM + 2 * i, 0.f, 1.f, 0.f,
+                        string::f("OUT %d from RIGHT bus", i - 6 + 1));
+            configParam(BUS_PARAM + 2 * i + 1, 0.f, 1.f, 0.f,
+                        string::f("OUT %d from RIGHT bus", i - 6 + 1));
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            configParam(DIV_PARAM + i, 0.f, 15.f, 1.f,
+                        string::f("CLK DIV %d", i + 1), " steps", 0.f, 1.f, 1.f);
+        }
+
+        configParam(GATE_PARAM, 0.f, 1.f, 0.5f,
+                    "Gate Length", " s", 10.f / 1e-3, 1e-3);
 
     }
 
@@ -136,7 +158,7 @@ struct Divisions : Module {
 
         float gatelength = std::max(
             1e-3f, // Minimum trigger length.
-            (std::pow(params[GATE_PARAM].getValue(), 4.0f) * gate_mod));
+            params[GATE_PARAM].getValue() * gate_mod);
 
         float lightgatelength = std::max(
             1.f / 25, // Minimum visible light length.
@@ -155,7 +177,7 @@ struct Divisions : Module {
                     ? inputs[DIV_INPUT + (i - 2)].getVoltage() / 10.0f
                     : 1.0);
 
-                unsigned int limit = 16.0 * params[DIV_PARAM + (i - 2)].getValue();
+                unsigned int limit = params[DIV_PARAM + (i - 2)].getValue();
                 unsigned int selected = limit * div_mod;
                 unsigned int current = conf.counter % (selected + 1);
 
@@ -174,6 +196,7 @@ struct Divisions : Module {
             }
 
             if (trigger) {
+                light_generator[i].reset();
                 light_generator[i].trigger(lightgatelength);
             }
 
@@ -193,7 +216,9 @@ struct Divisions : Module {
 
                 if (trigger && conf.bus_select[i * 2 + bus]) {
                     bus_triggered[bus] = true;
+                    bus_generator[bus].reset();
                     bus_generator[bus].trigger(gatelength);
+                    bus_light_generator[bus].reset();
                     bus_light_generator[bus].trigger(lightgatelength);
                 }
 
@@ -221,7 +246,7 @@ struct Divisions : Module {
                         // This means it has triggered but it was
                         // already high. Since we actually use this
                         // it's important!
-                         warning_generator.reset();
+                        warning_generator.reset();
                         warning_generator.trigger(lightgatelength);
                     }
 
@@ -242,11 +267,7 @@ struct DivisionsWidget : ModuleWidget {
     DivisionsWidget(Divisions* module) {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Divisions.svg")));
-
-        addChild(createWidget<ScrewSilver>(Vec(0, 0)));
-        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, 0)));
-        addChild(createWidget<ScrewSilver>(Vec(0, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        ADD_SCREWS();
 
         int height = 33;
         int hinc = 37;
@@ -255,7 +276,6 @@ struct DivisionsWidget : ModuleWidget {
         for (int i = 0; i < 9; ++i) {
 
             int width = 22;
-
 
             if (i == 0) {
                 addInput(createInputCentered<PJ301MPort>(
@@ -282,7 +302,6 @@ struct DivisionsWidget : ModuleWidget {
 
             width += winc;
 
-
             if (i < 2) {
                 addInput(createInputCentered<PJ301MPort>(
                              Vec(width, height), module,
@@ -304,14 +323,9 @@ struct DivisionsWidget : ModuleWidget {
 
                 }
 
-
                 addParam(createParamCentered<BefacoTinyKnob>(
                              Vec(width, height), module,
                              Divisions::DIV_PARAM + i - 2));
-
-
-
-
 
             } else {
                 addOutput(createOutputCentered<PJ301MPort>(
@@ -320,7 +334,6 @@ struct DivisionsWidget : ModuleWidget {
             }
 
             width += winc;
-
 
             addParam(createParamCentered<LEDBezel>(
                          Vec(width, height), module,
@@ -342,9 +355,8 @@ struct DivisionsWidget : ModuleWidget {
 
         }
 
-
     }
 };
 
 
-Model* modelDivisions = createModel<Divisions, DivisionsWidget>("Divisions");
+Model *modelDivisions = createModel<Divisions, DivisionsWidget>("Divisions");

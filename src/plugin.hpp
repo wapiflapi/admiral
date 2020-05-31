@@ -13,6 +13,15 @@ extern Model *modelTables;
 extern Model *modelDivisions;
 
 
+#define ADD_SCREW(X, Y) addChild(createWidget<ScrewSilver>(Vec((X), (Y))))
+#define ADD_SCREWS() do {                                               \
+        ADD_SCREW(0, 0);                                                \
+        ADD_SCREW(box.size.x - 1 * RACK_GRID_WIDTH, 0);                 \
+        ADD_SCREW(0, RACK_GRID_HEIGHT - RACK_GRID_WIDTH);               \
+        ADD_SCREW(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH); \
+    } while (0);
+
+
 template <typename BASE>
 struct MuteLight : BASE {
     MuteLight() {
