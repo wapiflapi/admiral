@@ -85,12 +85,26 @@ struct Tables : Module {
         config(NUM_PARAMS, NUM_INPUTS, NUM_OUTPUTS, NUM_LIGHTS);
 
         for (int i = 0; i < 8; ++i) {
-            configParam(MOD_PARAM + i, 0.f, 1.f, 0.f, string::f("Mode %d", i+1));
-            configParam(PAT_PARAM + i, 0.f, 1.f, 0.f, string::f("Pattern %d", i+1));
+            configParam(MOD_PARAM + i, 0.f, 1.f, 0.f,
+                        string::f(
+                            "◯◯ wait / pause\n"
+                            "⬤◯ first / one\n"
+                            "◯⬤ all / each\n"
+                            "⬤⬤ join / continuous\n"
+                            "Change Mode - step %d", i + 1));
+            configParam(PAT_PARAM + i, 0.f, 1.f, 0.f,
+                        string::f("Change Pattern - step %d", i + 1));
         }
 
-        configParam(SELECT_PARAM, 0.f, 1.f, 1.f, "Select");
-        configParam(SELECT_PARAM, 0.f, 1.f, 1.f, "Sequence Mode");
+        configParam(SELECT_PARAM, 0.f, 1.f, 1.f,
+                    "Select Sequencer");
+        configParam(ORDER_PARAM, 0.f, 1.f, 1.f,
+                    "◯◯ forward\n"
+                    "⬤◯ random\n"
+                    "◯⬤ brownian\n"
+                    "⬤⬤ reverse\n"
+                    "Change Mode"
+            );
 
         onReset();
     }
@@ -221,7 +235,6 @@ struct Tables : Module {
 
         }
     }
-
 
     bool channelClock(int c) {
 
@@ -445,11 +458,7 @@ struct TablesWidget : ModuleWidget {
     TablesWidget(Tables *module) {
         setModule(module);
         setPanel(APP->window->loadSvg(asset::plugin(pluginInstance, "res/Tables.svg")));
-
-        addChild(createWidget<ScrewSilver>(Vec(0, 0)));
-        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, 0)));
-        addChild(createWidget<ScrewSilver>(Vec(0, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
-        addChild(createWidget<ScrewSilver>(Vec(box.size.x - 1 * RACK_GRID_WIDTH, RACK_GRID_HEIGHT - RACK_GRID_WIDTH)));
+        ADD_SCREWS();
 
         int height = 35;
         int hinc = 27;
@@ -459,13 +468,21 @@ struct TablesWidget : ModuleWidget {
 
             int width = 19;
 
-            addParam(createParamCentered<LEDBezel>(Vec(width, height), module, Tables::MOD_PARAM + i));
-            addChild(createLightCentered<MuteLight<WhiteLight>>(Vec(width, height), module, Tables::MOD_LIGHT + i));
+            addParam(createParamCentered<LEDBezel>(
+                         Vec(width, height), module,
+                         Tables::MOD_PARAM + i));
+            addChild(createLightCentered<MuteLight<WhiteLight>>(
+                         Vec(width, height), module,
+                         Tables::MOD_LIGHT + i));
 
             width += winc;
 
-            addParam(createParamCentered<LEDBezel>(Vec(54, height), module, Tables::PAT_PARAM + i));
-            addChild(createLightCentered<MuteLight<WhiteLight>>(Vec(width, height), module, Tables::PAT_LIGHT + i));
+            addParam(createParamCentered<LEDBezel>(
+                         Vec(54, height), module,
+                         Tables::PAT_PARAM + i));
+            addChild(createLightCentered<MuteLight<WhiteLight>>(
+                         Vec(width, height), module,
+                         Tables::PAT_LIGHT + i));
 
             width += winc;
 
@@ -473,7 +490,9 @@ struct TablesWidget : ModuleWidget {
             width -= ledwidth / 2;
 
             for (int j = 0; j < 4; ++j) {
-                addChild(createLightCentered<MediumLight<RedLight>>(Vec(width, height), module, Tables::STEP_LIGHT + i * 4 + j));
+                addChild(createLightCentered<MediumLight<RedLight>>(
+                             Vec(width, height), module,
+                             Tables::STEP_LIGHT + i * 4 + j));
                 width += ledwidth;
             }
 
@@ -483,21 +502,33 @@ struct TablesWidget : ModuleWidget {
 
         int width = 19;
 
-        addParam(createParamCentered<LEDBezel>(Vec(width, height), module, Tables::ORDER_PARAM));
-        addChild(createLightCentered<MuteLight<RedLight>>(Vec(width, height), module, Tables::ORDER_LIGHT));
+        addParam(createParamCentered<LEDBezel>(
+                     Vec(width, height), module,
+                     Tables::ORDER_PARAM));
+        addChild(createLightCentered<MuteLight<RedLight>>(
+                     Vec(width, height), module,
+                     Tables::ORDER_LIGHT));
 
         width += winc;
 
-        addParam(createParamCentered<LEDBezel>(Vec(width, height), module, Tables::SELECT_PARAM));
-        addChild(createLightCentered<MuteLight<RedLight>>(Vec(width, height), module, Tables::SELECT_LIGHT));
+        addParam(createParamCentered<LEDBezel>(
+                     Vec(width, height), module,
+                     Tables::SELECT_PARAM));
+        addChild(createLightCentered<MuteLight<RedLight>>(
+                     Vec(width, height), module,
+                     Tables::SELECT_LIGHT));
 
         width += winc;
 
-        addInput(createInputCentered<PJ301MPort>(Vec(width, height),  module, Tables::RESET_INPUT));
+        addInput(createInputCentered<PJ301MPort>(
+                     Vec(width, height), module,
+                     Tables::RESET_INPUT));
 
         width += winc;
 
-        addInput(createInputCentered<PJ301MPort>(Vec(width, height),  module, Tables::CLOCK_INPUT));
+        addInput(createInputCentered<PJ301MPort>(
+                     Vec(width, height), module,
+                     Tables::CLOCK_INPUT));
 
 
         height += hinc;
@@ -506,7 +537,9 @@ struct TablesWidget : ModuleWidget {
         width = 35;
 
         for (int j = 0; j < 4; ++j) {
-            addChild(createLightCentered<MediumLight<GreenLight>>(Vec(width, height), module, Tables::CHANNEL_LIGHT + j));
+            addChild(createLightCentered<MediumLight<GreenLight>>(
+                         Vec(width, height), module,
+                         Tables::CHANNEL_LIGHT + j));
             width += winc;
         }
 
@@ -514,7 +547,9 @@ struct TablesWidget : ModuleWidget {
         width = 19;
 
         for (int j = 0; j < 4; ++j) {
-            addOutput(createOutputCentered<PJ301MPort>(Vec(width, height), module, Tables::GATE_OUTPUT + j));
+            addOutput(createOutputCentered<PJ301MPort>(
+                          Vec(width, height), module,
+                          Tables::GATE_OUTPUT + j));
             width += winc;
         }
 
@@ -522,12 +557,11 @@ struct TablesWidget : ModuleWidget {
         width = 19;
 
         for (int j = 0; j < 4; ++j) {
-            addOutput(createOutputCentered<PJ301MPort>(Vec(width, height), module, Tables::TRIG_OUTPUT + j));
+            addOutput(createOutputCentered<PJ301MPort>(
+                          Vec(width, height), module,
+                          Tables::TRIG_OUTPUT + j));
             width += winc;
         }
-
-
-
 
     }
 };
