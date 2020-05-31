@@ -1,5 +1,7 @@
 #include "plugin.hpp"
 
+using namespace simd;
+
 
 struct Watches : Module {
     enum ParamIds {
@@ -64,47 +66,81 @@ struct Watches : Module {
         float buscnt = params[BUSCNT_PARAM].getValue();
 
         for (int bus = 0; bus < 3; ++bus) {
-            float voltage = float(bus);
-            float w1 = 0.f;
+            float bus_select_voltage = float(bus);
 
-            if (params[W11_PARAM].getValue() == voltage)
-                w1 += inputs[W11_INPUT].getVoltage();
-            if (params[W12_PARAM].getValue() == voltage)
-                w1 += inputs[W12_INPUT].getVoltage();
-            if (params[W13_PARAM].getValue() == voltage)
-                w1 += inputs[W13_INPUT].getVoltage();
+            int top_channel_count = 0, bottom_channel_count = 0;
 
-            float w2 = 0.f;
+            for (int channel = 0; channel < 16; channel++) {
+                float top, bottom;
 
-            if (params[W21_PARAM].getValue() == voltage)
-                w2 += inputs[W21_INPUT].getVoltage();
-            if (params[W22_PARAM].getValue() == voltage)
-                w2 += inputs[W22_INPUT].getVoltage();
+# define check_channel(DEST, COUNT, PARAM, INPUT)  {                    \
+                    if (inputs[INPUT].getChannels() > channel           \
+                        && params[PARAM].getValue() == bus_select_voltage) { \
+                        COUNT = channel + 1;                            \
+                        DEST += inputs[INPUT].getVoltage(channel);      \
+                    }                                                   \
+                }
 
-            if (bus == 1 && buscnt == 2.0) {
-                // Middle bus needs to mute.
-                w1 = w2 = 0.0;
+                top = 0.f;
+                check_channel(top, top_channel_count, W11_PARAM, W11_INPUT);
+                check_channel(top, top_channel_count, W12_PARAM, W12_INPUT);
+                check_channel(top, top_channel_count, W13_PARAM, W13_INPUT);
+
+                bottom = 0.f;
+                check_channel(bottom, bottom_channel_count, W21_PARAM, W21_INPUT);
+                check_channel(bottom, bottom_channel_count, W22_PARAM, W22_INPUT);
+
+                if (top_channel_count <= channel && bottom_channel_count <= channel) {
+                    break;  // No point in continuing.
+                }
+
+                if (bus == 1 && buscnt == 2.0) {
+                    // Middle bus needs to mute because we only want two buses.
+                    top = bottom = 0.0;
+                }
+
+                if (join || (bus == 1 && buscnt == 1.0)) {
+                    // We are joining, or middle bus is crossing sections.
+                    top = bottom = top + bottom;
+                }
+
+                if (params[W14_PARAM].getValue() == bus_select_voltage)
+                    outputs[W14_OUTPUT].setVoltage(top, channel);
+                if (params[W15_PARAM].getValue() == bus_select_voltage)
+                    outputs[W15_OUTPUT].setVoltage(top, channel);
+
+                if (params[W23_PARAM].getValue() == bus_select_voltage)
+                    outputs[W23_OUTPUT].setVoltage(bottom, channel);
+                if (params[W24_PARAM].getValue() == bus_select_voltage)
+                    outputs[W24_OUTPUT].setVoltage(bottom, channel);
+                if (params[W25_PARAM].getValue() == bus_select_voltage)
+                    outputs[W25_OUTPUT].setVoltage(bottom, channel);
+
             }
 
             if (join || (bus == 1 && buscnt == 1.0)) {
                 // We are joining, or middle bus is crossing sections.
-                w1 = w2 = w1 + w2;
+                // Both halves will have max number of channels.
+                if (top_channel_count > bottom_channel_count)
+                    bottom_channel_count = top_channel_count;
+                else
+                    top_channel_count = bottom_channel_count;
             }
 
-            if (params[W14_PARAM].getValue() == voltage)
-                outputs[W14_OUTPUT].setVoltage(w1);
-            if (params[W15_PARAM].getValue() == voltage)
-                outputs[W15_OUTPUT].setVoltage(w1);
+            if (params[W14_PARAM].getValue() == bus_select_voltage)
+                outputs[W14_OUTPUT].setChannels(top_channel_count);
+            if (params[W15_PARAM].getValue() == bus_select_voltage)
+                outputs[W15_OUTPUT].setChannels(top_channel_count);
 
-            if (params[W23_PARAM].getValue() == voltage)
-                outputs[W23_OUTPUT].setVoltage(w2);
-            if (params[W24_PARAM].getValue() == voltage)
-                outputs[W24_OUTPUT].setVoltage(w2);
-            if (params[W25_PARAM].getValue() == voltage)
-                outputs[W25_OUTPUT].setVoltage(w2);
+            if (params[W23_PARAM].getValue() == bus_select_voltage)
+                outputs[W23_OUTPUT].setChannels(bottom_channel_count);
+            if (params[W24_PARAM].getValue() == bus_select_voltage)
+                outputs[W24_OUTPUT].setChannels(bottom_channel_count);
+            if (params[W25_PARAM].getValue() == bus_select_voltage)
+                outputs[W25_OUTPUT].setChannels(bottom_channel_count);
+
 
         }
-
 
         if (joinTrigger.process(params[JOIN_PARAM].getValue() > 0.f)) {
             join ^= true;

@@ -4,36 +4,25 @@ This is a work in progress collection for Rack version 1.
 
 ![modules screenshot](./images/admiral.png)
 
-## Watches - Switched Multiples
 
-![modules screenshot](./images/watches.png)
+## Divisions - Clock Divider and Polyrhythm Generator
 
-Watches is a passive multi-connector similar to a classic multiple.
-What's different is that each socket has a 3-position switch to
-connect the jack to one of three internal buses.
+![divisions screenshot](./images/divisions.png)
 
-All **inputs on a bus are added together and sent to the output
-jacks** connected to that bus.
+Divisions is four clock dividers and two auxiliary inputs that act as
+trigger sources. Each trigger can be routed to one or both of the available
+buses, and the slider controls the gate length.
 
-The top section has three inputs and two outputs, the bottom section
-is the opposite and has two inputs and three outputs.
+The module has three outputs towards the bottom that will be high when their
+selected buses are high.
 
-Normally Watches is separated in a top and bottom section that act
-independently. When the `+` button is red the top three buses are
-connected to their bottom counterparts and the module act as one.
-
-The **neutral switch position** connect jacks to the middle bus.
-The middle bus is special and acts differently according to the `2:3`
-switch:
-  - On `2` only two buses are active, the middle bus mutes.
-  - On `3` the middle bus is independent in each section.
-  - In between the middle bus is shared between the two sections even
-    when `+` is not active and they otherwise act independently.
-
+The four clock dividers can be controlled by CV (0 - 10V) and if a jack is
+connected the knobs will act as attenuators to limit the range of the clock
+division.
 
 ## Shifts - Hybrid Bernoulli Mixer
 
-![modules screenshot](./images/shifts.png)
+![shifts screenshot](./images/shifts.png)
 
 Shifts is a hybrid mixer and Bernoulli gate. Each knob mixes linearly
 between two things as long as the knob is in the top part. When going
@@ -70,7 +59,7 @@ knob is in the Bernoulli zone. This can act like **a mixer** or a
 
 ## Tables - Quad Sequencer
 
-![modules screenshot](./images/tables.png)
+![tables screenshot](./images/tables.png)
 
 Tables is four sequencers in one module. Inspired by the Metropolis and
 the Ryk M-185, Tables focus is more on the rhythm and randomness
@@ -151,3 +140,30 @@ the bottom `mod` button.
 
   - `@ @`: **reverse** iterates over all stages from the bottom to the
   top then cycles starting from the bottom again.
+
+
+## Watches - Switched Multiples
+
+![watches screenshot](./images/watches.png)
+
+Watches is a passive multi-connector similar to a classic multiple.
+What's different is that each socket has a 3-position switch to
+connect the jack to one of three internal buses.
+
+All **inputs on a bus are added together and sent to the output
+jacks** connected to that bus.
+
+The top section has three inputs and two outputs, the bottom section
+is the opposite and has two inputs and three outputs.
+
+Normally Watches is separated in a top and bottom section that act
+independently. When the `+` button is red the top three buses are
+connected to their bottom counterparts and the module act as one.
+
+The **neutral switch position** connect jacks to the middle bus.
+The middle bus is special and acts differently according to the `2:3`
+switch:
+  - On `2` only two buses are active, the middle bus mutes.
+  - On `3` the middle bus is independent in each section.
+  - In between the middle bus is shared between the two sections even
+    when `+` is not active and they otherwise act independently.
